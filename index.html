@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f4f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex, nofollow">
+<title>☕</title>
+<style>
+  :root {
+    /* ==== 主题色，改这四行即可 ==== */
+    --accent:  #6366F1;
+    --glow-1:  rgba(99, 102, 241, .30);
+    --glow-2:  rgba(236, 72, 153, .20);
+
+    /* 品牌色（提示文字用） */
+    --wx:  #07C160;
+    --ali: #1677FF;
+
+    --bg:     #f4f4f6;
+    --text-2: #6e6e73;
+    --text-3: #a1a1a6;
+    --shadow: 0 20px 50px -18px rgba(0, 0, 0, .22),
+              0 4px 12px -6px rgba(0, 0, 0, .06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:     #0a0a0b;
+      --text-2: #a1a1a6;
+      --text-3: #6e6e73;
+      --glow-1: rgba(99, 102, 241, .22);
+      --glow-2: rgba(236, 72, 153, .14);
+      --shadow: 0 20px 50px -18px rgba(0, 0, 0, .7),
+                0 4px 12px -6px rgba(0, 0, 0, .4);
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
+    background: var(--bg);
+    overflow-x: hidden;
+    color: var(--text-2);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro SC", "PingFang SC",
+                 "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- 背景光晕 ---------- */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 70vmax;
+    height: 70vmax;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .55;
+    z-index: -1;
+    pointer-events: none;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  body::before {
+    top: -28vmax; left: -22vmax;
+    background: radial-gradient(circle, var(--glow-1), transparent 68%);
+  }
+  body::after {
+    bottom: -30vmax; right: -24vmax;
+    background: radial-gradient(circle, var(--glow-2), transparent 68%);
+    animation-delay: -9s;
+  }
+
+  @keyframes drift {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(4vmax, -3vmax, 0) scale(1.08); }
+  }
+
+  /* ---------- 主容器 ---------- */
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    animation: rise .7s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---------- 二维码 ---------- */
+  .qr-box {
+    position: relative;
+    width: min(68vw, 252px);
+    aspect-ratio: 1;
+  }
+
+  /* 呼吸光晕 */
+  .qr-box::before {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border-radius: 36px;
+    background: var(--accent);
+    opacity: .16;
+    filter: blur(26px);
+    animation: breathe 5s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: .12; transform: scale(.96); }
+    50%      { opacity: .24; transform: scale(1.04); }
+  }
+
+  .qr {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 26px;
+    background: #fff;
+    cursor: zoom-in;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .qr:active { transform: scale(.97); }
+
+  @media (hover: hover) {
+    .qr:hover { transform: translateY(-3px) scale(1.015); }
+  }
+
+  .qr:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow), 0 0 0 3px var(--accent);
+  }
+
+  .qr img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 14px;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* ---------- 占位（图片缺失时） ---------- */
+  .ph {
+    display: none;
+    position: absolute;
+    inset: 14px;
+    border-radius: 18px;
+    border: 1.5px dashed rgba(0, 0, 0, .12);
+    color: rgba(0, 0, 0, .18);
+  }
+  .qr.missing img { display: none; }
+  .qr.missing .ph  { display: block; }
+
+  /* ---------- 扫码提示 ---------- */
+  .hint {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-2);
+    text-align: center;
+    letter-spacing: .01em;
+  }
+  .hint b {
+    font-weight: 500;
+    /* 品牌色略微提亮，暗色模式下更清晰 */
+    filter: brightness(1.05);
+  }
+  .hint .wx  { color: var(--wx); }
+  .hint .ali { color: var(--ali); }
+
+  /* ---------- 致谢行 ---------- */
+  /* ==== 改这里的文字，或整行替换 ==== */
+  .credits {
+    margin: 0;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--text-3);
+    opacity: .6;
+    letter-spacing: .01em;
+    text-align: center;
+  }
+  .credits a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+    transition: opacity .2s ease;
+  }
+  .credits a:hover { opacity: .8; }
+
+  /* ---------- 放大层 ---------- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .28s ease, visibility .28s;
+  }
+  .lightbox.open { opacity: 1; visibility: visible; }
+
+  .lightbox img {
+    width: min(78vw, 340px);
+    height: auto;
+    border-radius: 24px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .6);
+    transform: scale(.9);
+    transition: transform .34s cubic-bezier(.34, 1.4, .5, 1);
+  }
+  .lightbox.open img { transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="stage">
+
+  <div class="qr-box">
+    <button class="qr" id="qr" type="button" aria-label="收款二维码">
+      <img id="qrImg" src="./qr.jpg" alt="收款二维码">
+      <svg class="ph" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <path d="M14 14h3v3h-3zM20 14v3M17 20h4M14 20h.01"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ==== 扫码提示：可自由改写文案 ==== -->
+  <p class="hint">敬请使用 <b class="wx">微信</b> 或 <b class="ali">支付宝</b> 扫描</p>
+
+  <!-- ==== 致谢行：可自由改写 ==== -->
+  <p class="credits">页面由 <a href="https://chat.deepseek.com" target="_blank" rel="noopener">DeepSeek</a> 制作 · 感谢 <a href="https://github.com/uxiaohan/PayQrcode" target="_blank" rel="noopener">PayQrcode</a> 项目</p>
+
+</main>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+(function () {
+  const qr       = document.getElementById('qr');
+  const qrImg    = document.getElementById('qrImg');
+  const lightbox = document.getElementById('lightbox');
+  const lightImg = document.getElementById('lightboxImg');
+
+  /* 图片加载失败 → 显示占位图标 */
+  const fail = () => qr.classList.add('missing');
+  qrImg.addEventListener('error', fail);
+  if (qrImg.complete && qrImg.naturalWidth === 0) fail();
+
+  /* 点击放大 */
+  qr.addEventListener('click', () => {
+    if (qr.classList.contains('missing')) return;
+    lightImg.src = qrImg.src;
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+  });
+
+  function close() {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+  }
+
+  lightbox.addEventListener('click', close);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
+</body>
+</html>
